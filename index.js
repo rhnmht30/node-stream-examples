@@ -20,7 +20,9 @@ app.use(morgan("dev"));
 // const User = require("./models/User");
 
 //Routes
+
 app.use("/api/v1/", require("./routes/api/v1/index"));
+app.use("/api/v1/file", require("./routes/api/v1/stream"));
 
 //Error Handlers
 app.use(notFoundError);
