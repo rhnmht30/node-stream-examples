@@ -1,7 +1,7 @@
 require("dotenv").config();
 const fs = require("fs");
 
-module.exports.index = (req, res) => {
+module.exports.index = (req, res, next) => {
 	fs.exists("public/big.file", exists => {
 		if (!exists) {
 			const file = fs.createWriteStream("public/big.file");
@@ -13,13 +13,20 @@ module.exports.index = (req, res) => {
 			}
 
 			file.end();
-		}
-	});
-	return res.json({
-		message: "Welcome to API! A file has been created in public folder",
-		downloadFile: {
-			withoutStream: `http://${req.headers.host}/api/v1/file/withoutStream`,
-			withStream: `http://${req.headers.host}/api/v1/file/withStream`
+
+			file.on("error", err => {
+				next(err);
+			});
+
+			file.on("finish", () => {
+				res.json({
+					message: "Welcome to API! A file has been created in public folder",
+					downloadFile: {
+						withoutStream: `http://${req.headers.host}/api/v1/file/withoutStream`,
+						withStream: `http://${req.headers.host}/api/v1/file/withStream`
+					}
+				});
+			});
 		}
 	});
 };
